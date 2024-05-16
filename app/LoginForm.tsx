@@ -1,19 +1,44 @@
-import React from 'react'
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native'
+import React, { useEffect } from 'react'
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  Image,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import * as LocalAuthentication from 'expo-local-authentication'
-
-interface LoginFormProps {
-  onLogin: (values: { username: string; password: string }) => void
-}
+import { useLogin } from '../hooks/useLogin'
 
 const LoginSchema = Yup.object().shape({
   username: Yup.string().required('Username is required'),
   password: Yup.string().required('Password is required'),
 })
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
+const LoginForm: React.FC = () => {
+  const {
+    login,
+    loading,
+    error,
+    data,
+    secureLogin,
+    checkSecureCredentials,
+  } = useLogin()
+
+  useEffect(() => {
+    const checkCredentials = async () => {
+      const presentCredentials = await checkSecureCredentials()
+      presentCredentials && handleBiometricAuth()
+    }
+    // TODO: enable for deployments
+    // checkCredentials()
+  }, [])
+
   const handleBiometricAuth = async () => {
     try {
       const hasHardware = await LocalAuthentication.hasHardwareAsync()
@@ -22,26 +47,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         return
       }
 
-      console.log('hasHardware', hasHardware)
-
       const biometricRecords = await LocalAuthentication.isEnrolledAsync()
       if (!biometricRecords) {
         Alert.alert('Error', 'No biometric records found')
         return
       }
 
-      console.log('biometricRecords', biometricRecords)
-
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Authenticate with Face ID or Touch ID',
         fallbackLabel: 'Use Passcode',
-      });
-
-      console.log(result)
+      })
 
       if (result.success) {
-        Alert.alert('Success', 'Biometric Authentication Successful')
-        onLogin({ username: 'biometricUser', password: 'biometricPass' })
+        // Alert.alert('Success', 'Biometric Authentication Successful')
+        // onLogin({ username: 'biometricUser', password: 'biometricPass' })
+        secureLogin()
       } else {
         Alert.alert('Failure', 'Biometric Authentication Failed')
       }
@@ -50,17 +70,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     }
   }
 
+  const handleSubmit = (values: { username: string; password: string }) => {
+    login(values.username, values.password)
+  }
+
   return (
     <Formik
-      initialValues={{ username: '', password: '' }}
+      initialValues={{ username: 'famarin1k86@gmail.com', password: 'A12345' }}
       validationSchema={LoginSchema}
-      onSubmit={(values) => {
-        if (onLogin) {
-          onLogin(values)
-        } else {
-          Alert.alert('Success', `Logged in as ${values.username}`)
-        }
-      }}
+      onSubmit={handleSubmit}
     >
       {({
         handleChange,
@@ -72,6 +90,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         isSubmitting,
       }) => (
         <View style={styles.container}>
+          <Image
+            style={styles.image}
+            source={require('../assets/images/logo-flexxiz.png')}
+          />
+          {/* <View style={styles.separatorLine} /> */}
           <Text style={styles.title}>Login</Text>
           <TextInput
             style={styles.input}
@@ -94,16 +117,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
           {errors.password && touched.password ? (
             <Text style={styles.error}>{errors.password}</Text>
           ) : null}
-          <Button
-            title="Login"
-            onPress={() => handleSubmit()}
-            disabled={isSubmitting}
-          />
+          {loading ? (
+            <ActivityIndicator size="large" color="#337ab7" />
+          ) : (
+            <Pressable style={styles.button} onPress={() => handleSubmit()}>
+              <Text style={styles.buttonLabel}>Login</Text>
+            </Pressable>
+          )}
           <View style={styles.separator} />
-          <Button
-            title="Use Biometric Authenticationn"
+          <Pressable
+            style={[styles.outlinedButton, loading && styles.buttonDisabled]}
             onPress={handleBiometricAuth}
-          />
+            disabled={loading}
+          >
+            <Text style={styles.outlinedButtonLabel}>Use Biometric Authentication</Text>
+          </Pressable>
+          {/* <View style={styles.separatorLine} /> */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>© 2021 Flexxiz Corporation</Text>
+          </View>
         </View>
       )}
     </Formik>
@@ -120,6 +152,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 16,
     textAlign: 'center',
+    fontWeight: 'bold'
   },
   input: {
     height: 40,
@@ -136,6 +169,53 @@ const styles = StyleSheet.create({
   separator: {
     height: 20,
   },
+  image: {
+    width: 220,
+    height: 100,
+    alignSelf: 'center',
+  },
+  button: {
+    borderRadius: 10,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#337ab7',
+    borderBlockColor: '#2e6da4',
+    height: 40,
+  },
+  buttonLabel: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  separatorLine: {
+    height: 2,
+    backgroundColor: 'rgb(124, 183, 42)',
+    marginVertical: 20, // Adjust the margin as needed
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 10,
+    width: '100%',
+    alignItems: 'center',
+    margin: 15 
+  },
+  footerText: {
+    color: 'gray',
+    textAlign: 'center',
+  },
+  outlinedButton: {
+    height: 40,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  outlinedButtonLabel: {
+    fontSize: 16,
+    color: '#337ab7'
+  }
 })
 
 export default LoginForm
