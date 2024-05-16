@@ -94,7 +94,7 @@ const LoginForm: React.FC = () => {
             style={styles.image}
             source={require('../assets/images/logo-flexxiz.png')}
           />
-          {/* <View style={styles.separatorLine} /> */}
+          <View style={styles.separatorLine} />
           <Text style={styles.title}>Login</Text>
           <TextInput
             style={styles.input}
