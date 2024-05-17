@@ -76,7 +76,7 @@ const LoginForm: React.FC = () => {
 
   return (
     <Formik
-      initialValues={{ username: 'famarin1k86@gmail.com', password: 'A12345' }}
+      initialValues={{ username: '', password: '' }}
       validationSchema={LoginSchema}
       onSubmit={handleSubmit}
     >
@@ -98,7 +98,7 @@ const LoginForm: React.FC = () => {
           <Text style={styles.title}>Login</Text>
           <TextInput
             style={styles.input}
-            placeholder="Username"
+            placeholder="E-mail or telephone"
             onChangeText={handleChange('username')}
             onBlur={handleBlur('username')}
             value={values.username}
