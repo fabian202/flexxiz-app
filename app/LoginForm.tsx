@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   View,
   Text,
@@ -30,14 +30,17 @@ const LoginForm: React.FC = () => {
     checkSecureCredentials,
   } = useLogin()
 
+  const [canUseBio, setCanUseBio] = useState<boolean>(false)
+
   useEffect(() => {
     const checkCredentials = async () => {
       const presentCredentials = await checkSecureCredentials()
+      setCanUseBio(presentCredentials)
       presentCredentials && handleBiometricAuth()
     }
-    // TODO: enable for deployments
-    // checkCredentials()
-  }, [])
+
+    checkCredentials()
+  }, [canUseBio])
 
   const handleBiometricAuth = async () => {
     try {
@@ -128,7 +131,7 @@ const LoginForm: React.FC = () => {
           <Pressable
             style={[styles.outlinedButton, loading && styles.buttonDisabled]}
             onPress={handleBiometricAuth}
-            disabled={loading}
+            disabled={!canUseBio || loading}
           >
             <Text style={styles.outlinedButtonLabel}>Use Biometric Authentication</Text>
           </Pressable>

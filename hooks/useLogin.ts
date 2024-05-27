@@ -43,9 +43,17 @@ export const useLogin = () => {
     //Redirect
 
     const authToken = data?.AuthorizationToken?.access_token
+    const refreshToken = data?.AuthorizationToken?.refresh_token
 
-    //Use Linking component
-    Alert.alert('redirect', `redirect to url ${process.env.EXPO_PUBLIC_REDIRECT_URL}?token=${authToken}`)
+    const url = `${process.env.EXPO_PUBLIC_REDIRECT_URL}?token=${authToken}&refresh_token=${refreshToken}`
+
+    const canOpenUrl = await Linking.canOpenURL(url)
+
+    if (canOpenUrl) {
+      await Linking.openURL(url)
+    } else {
+      Alert.alert(`Don't know how to open this URL: ${url}`);
+    }
   }
 
   const secureLogin = async () => {
