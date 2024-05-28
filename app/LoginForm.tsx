@@ -129,7 +129,7 @@ const LoginForm: React.FC = () => {
           )}
           <View style={styles.separator} />
           <Pressable
-            style={[styles.outlinedButton, loading && styles.buttonDisabled]}
+            style={[styles.outlinedButton, (!canUseBio || loading) && styles.buttonDisabled]}
             onPress={handleBiometricAuth}
             disabled={!canUseBio || loading}
           >

@@ -49,6 +49,8 @@ export const useLogin = () => {
 
     const canOpenUrl = await Linking.canOpenURL(url)
 
+    // Alert.alert(url)
+
     if (canOpenUrl) {
       await Linking.openURL(url)
     } else {
