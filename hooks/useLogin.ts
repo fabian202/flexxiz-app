@@ -30,6 +30,9 @@ export const useLogin = () => {
       }
     )
 
+    console.log(`${process.env.EXPO_PUBLIC_API_URL}/Authentication`)
+    console.log(body)
+
     if (!response.ok) {
       setLoading(false)
       setError('Login failed')
@@ -41,6 +44,7 @@ export const useLogin = () => {
     setData(data)
     setItem('credentials', body)
     //Redirect
+    console.log(data)
 
     const authToken = data?.AuthorizationToken?.access_token
     const refreshToken = data?.AuthorizationToken?.refresh_token
@@ -49,7 +53,7 @@ export const useLogin = () => {
 
     const canOpenUrl = await Linking.canOpenURL(url)
 
-    // Alert.alert(url)
+    Alert.alert(url)
 
     if (canOpenUrl) {
       await Linking.openURL(url)

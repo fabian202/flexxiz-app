@@ -36,7 +36,7 @@ const LoginForm: React.FC = () => {
     const checkCredentials = async () => {
       const presentCredentials = await checkSecureCredentials()
       setCanUseBio(presentCredentials)
-      presentCredentials && handleBiometricAuth()
+      // presentCredentials && handleBiometricAuth()
     }
 
     checkCredentials()
