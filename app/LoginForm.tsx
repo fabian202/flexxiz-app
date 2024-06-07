@@ -33,14 +33,10 @@ const LoginForm: React.FC = () => {
   const [canUseBio, setCanUseBio] = useState<boolean>(false)
 
   useEffect(() => {
-    const checkCredentials = async () => {
-      const presentCredentials = await checkSecureCredentials()
-      setCanUseBio(presentCredentials)
-      // presentCredentials && handleBiometricAuth()
-    }
-
-    checkCredentials()
-  }, [canUseBio])
+    const presentCredentials = checkSecureCredentials()
+    setCanUseBio(presentCredentials)
+    presentCredentials && !error && !data && handleBiometricAuth()
+  }, [error, data, setCanUseBio])
 
   const handleBiometricAuth = async () => {
     try {
@@ -63,10 +59,9 @@ const LoginForm: React.FC = () => {
 
       if (result.success) {
         // Alert.alert('Success', 'Biometric Authentication Successful')
-        // onLogin({ username: 'biometricUser', password: 'biometricPass' })
         secureLogin()
       } else {
-        Alert.alert('Failure', 'Biometric Authentication Failed')
+        console.log('Failure', 'Biometric Authentication Failed')
       }
     } catch (e) {
       Alert.alert('Error', `Biometric Authentication Error:`)
@@ -105,6 +100,8 @@ const LoginForm: React.FC = () => {
             onChangeText={handleChange('username')}
             onBlur={handleBlur('username')}
             value={values.username}
+            inputMode="email"
+            autoCapitalize="none"
           />
           {errors.username && touched.username ? (
             <Text style={styles.error}>{errors.username}</Text>
