@@ -33,14 +33,25 @@ export const useLogin = () => {
     if (!response.ok) {
       setLoading(false)
       setError('Login failed')
+      await clearItem('credentials')
       return
     }
 
     const data = await response.json()
+
+    if (data === null) {
+      setLoading(false)
+      const errorMessage = 'User name or password is incorrect.'
+      setError(errorMessage)
+      Alert.alert(errorMessage)
+      setItem('credentials', '')
+      await clearItem('credentials')
+      return
+    }
+
     setLoading(false)
     setData(data)
     setItem('credentials', body)
-    //Redirect
 
     const authToken = data?.AuthorizationToken?.access_token
     const refreshToken = data?.AuthorizationToken?.refresh_token
@@ -67,14 +78,16 @@ export const useLogin = () => {
     }
   }
 
-  const setItem = async (key: string, value: string) => {
-    await SecureStore.setItemAsync(key, value)
+  const setItem = (key: string, value: string) => SecureStore.setItem(key, value)
+
+  const getItem = (key: string) =>  SecureStore.getItem(key)
+
+  const clearItem = async (key: string) => {
+    await SecureStore.deleteItemAsync(key)
   }
 
-  const getItem = async (key: string) => SecureStore.getItemAsync(key)
-
-  const checkSecureCredentials = async () => {
-    const credentials = await getItem('credentials')
+  const checkSecureCredentials = () => {
+    const credentials = getItem('credentials')
     return !!credentials
   }
 
