@@ -7,7 +7,11 @@ export const useLogin = () => {
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<any>(null)
 
-  const login = async (username: string, password: string) => {
+  const login = async (
+    username: string,
+    password: string,
+    biometrics: boolean
+  ) => {
     setLoading(true)
     setError(null)
 
@@ -56,7 +60,9 @@ export const useLogin = () => {
     const authToken = data?.AuthorizationToken?.access_token
     const refreshToken = data?.AuthorizationToken?.refresh_token
 
-    const url = `${process.env.EXPO_PUBLIC_REDIRECT_URL}?token=${authToken}&refresh_token=${refreshToken}`
+    const url = `${process.env.EXPO_PUBLIC_REDIRECT_URL}?token=${authToken}|${
+      biometrics ? '1' : '0'
+    }&refresh_token=${refreshToken}`
 
     const canOpenUrl = await Linking.canOpenURL(url)
 
@@ -65,7 +71,7 @@ export const useLogin = () => {
     if (canOpenUrl) {
       await Linking.openURL(url)
     } else {
-      Alert.alert(`Don't know how to open this URL: ${url}`);
+      Alert.alert(`Don't know how to open this URL: ${url}`)
     }
   }
 
@@ -74,13 +80,14 @@ export const useLogin = () => {
 
     if (credentials) {
       const { Name: username, Pass: password } = JSON.parse(credentials)
-      login(username, password)
+      login(username, password, true)
     }
   }
 
-  const setItem = (key: string, value: string) => SecureStore.setItem(key, value)
+  const setItem = (key: string, value: string) =>
+    SecureStore.setItem(key, value)
 
-  const getItem = (key: string) =>  SecureStore.getItem(key)
+  const getItem = (key: string) => SecureStore.getItem(key)
 
   const clearItem = async (key: string) => {
     await SecureStore.deleteItemAsync(key)

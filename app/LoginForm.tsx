@@ -69,7 +69,7 @@ const LoginForm: React.FC = () => {
   }
 
   const handleSubmit = (values: { username: string; password: string }) => {
-    login(values.username, values.password)
+    login(values.username, values.password, false)
   }
 
   return (
